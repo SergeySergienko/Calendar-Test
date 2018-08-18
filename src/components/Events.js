@@ -1,13 +1,15 @@
 import React, { Component, Fragment } from "react";
 import Event from "./Event";
 
+const dummyEvents = [
+  { start: 0, duration: 20, title: "Exercise", visualWidth: 200, shifted: 0 },
+  { start: 25, duration: 30, title: "Travel to Work", visualWidth: 200, shifted: 0 },
+  { start: 120, duration: 50, title: "Plan the Day", visualWidth: 200, shifted: 0 }
+];
+
 export default class Events extends Component {
   state = {
-    events: [
-      { start: 0, duration: 15, title: "Exercise" },
-      { start: 25, duration: 30, title: "Travel to Work" },
-      { start: 120, duration: 30, title: "Plan the Day" }
-    ],
+    events: dummyEvents,
     currentInput: {
       start: "",
       duration: "",
@@ -24,7 +26,7 @@ export default class Events extends Component {
   addEventHandler = () => {
     const newEvents = this.state.events;
     const { start, duration, title } = this.state.currentInput;
-    console.log(newEvents);
+    // console.log(newEvents);
 
     let overlappedElement = newEvents.find(
       el =>
@@ -32,13 +34,16 @@ export default class Events extends Component {
         (el.start >= start && el.start <= start + duration)
     );
     console.log(overlappedElement);
-    let shifted = overlappedElement ? 160 : 0;
+    let shift = overlappedElement ? 100 : 0;
+    let visualWidth = overlappedElement ? 100 : 200;
+    overlappedElement.visualWidth = 100;
 
     newEvents.push({
       start,
       duration,
       title,
-      shifted
+      visualWidth,
+      shift
     });
     this.setState({
       events: newEvents
