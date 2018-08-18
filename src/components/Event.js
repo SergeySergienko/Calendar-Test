@@ -24,7 +24,7 @@ export default class Event extends Component {
 
     return (
       <Fragment>
-        <div style={styles.event} onClick={()=>onDelete(index)}>{event.title} {event.start} - {event.duration}</div>
+        <div style={styles.event} onClick={()=>onDelete(event,index)}>{event.title} {event.start} - {event.duration}</div>
       </Fragment>
     );
   }

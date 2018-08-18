@@ -1,10 +1,31 @@
 import React, { Component, Fragment } from "react";
 import Event from "./Event";
 
+const SHORTEN_WIDTH = 100;
+const FULL_WIDTH = 200;
+
 const dummyEvents = [
-  { start: 0, duration: 20, title: "Exercise", visualWidth: 200, shifted: 0 },
-  { start: 25, duration: 30, title: "Travel to Work", visualWidth: 200, shifted: 0 },
-  { start: 120, duration: 50, title: "Plan the Day", visualWidth: 200, shifted: 0 }
+  {
+    start: 0,
+    duration: 20,
+    title: "Exercise",
+    visualWidth: FULL_WIDTH,
+    shift: 0
+  },
+  {
+    start: 25,
+    duration: 30,
+    title: "Travel to Work",
+    visualWidth: FULL_WIDTH,
+    shift: 0
+  },
+  {
+    start: 120,
+    duration: 50,
+    title: "Plan the Day",
+    visualWidth: FULL_WIDTH,
+    shift: 0
+  }
 ];
 
 export default class Events extends Component {
@@ -17,7 +38,25 @@ export default class Events extends Component {
     }
   };
 
-  deleteHandler = index => {
+  deleteEventHandler = (event, index) => {
+    // --- parallel events check out ---
+    const newEvents = this.state.events;
+    let shortenedElement = newEvents.find(
+      el =>
+        (event.start >= el.start &&
+          event.start <= el.start + el.duration &&
+          event.title !== el.title) ||
+        (el.start >= event.start &&
+          el.start <= event.start + event.duration &&
+          event.title !== el.title)
+    );
+    console.log("ShortenedElement: ", shortenedElement);
+    if (shortenedElement) {
+      shortenedElement.shift = 0;
+      shortenedElement.visualWidth = FULL_WIDTH;
+    }
+    // ----------------------------------
+
     this.setState({
       events: this.state.events.filter((elem, i) => i !== index)
     });
@@ -26,17 +65,20 @@ export default class Events extends Component {
   addEventHandler = () => {
     const newEvents = this.state.events;
     const { start, duration, title } = this.state.currentInput;
-    // console.log(newEvents);
 
+    // --- overlapped events check out ---
     let overlappedElement = newEvents.find(
       el =>
         (start >= el.start && start <= el.start + el.duration) ||
         (el.start >= start && el.start <= start + duration)
     );
-    console.log(overlappedElement);
-    let shift = overlappedElement ? 100 : 0;
-    let visualWidth = overlappedElement ? 100 : 200;
-    overlappedElement.visualWidth = 100;
+    console.log("OverlappedElement: ", overlappedElement);
+    let shift = overlappedElement && overlappedElement.shift !== 100 ? 100 : 0;
+    let visualWidth = overlappedElement ? SHORTEN_WIDTH : FULL_WIDTH;
+    if (overlappedElement) {
+      overlappedElement.visualWidth = SHORTEN_WIDTH;
+    }
+    // ----------------------------------
 
     newEvents.push({
       start,
@@ -86,7 +128,7 @@ export default class Events extends Component {
   render() {
     const eventList = this.state.events.map((event, index) => (
       <Fragment key={index}>
-        <Event event={event} index={index} onDelete={this.deleteHandler} />
+        <Event event={event} index={index} onDelete={this.deleteEventHandler} />
       </Fragment>
     ));
     return (
