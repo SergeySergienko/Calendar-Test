@@ -3,7 +3,7 @@ import React, { Component, Fragment } from "react";
 export default class Event extends Component {
   render() {
     const { event, index, onDelete } = this.props;
-  
+
     const styles = {
       event: {
         position: "absolute",
@@ -18,13 +18,17 @@ export default class Event extends Component {
         padding: "4px",
         boxSizing: "border-box",
         fontFamily: "Open Sans",
-        fontSize: "14px"
+        fontSize: "14px",
+        overflow: "hidden",
+        textOverflow: "ellipsis"
       }
     };
 
     return (
       <Fragment>
-        <div style={styles.event} onClick={()=>onDelete(event,index)}>{event.title} {event.start} - {event.duration}</div>
+        <div style={styles.event} onClick={() => onDelete(event, index)}>
+          {event.title} {event.start} - {event.duration}
+        </div>
       </Fragment>
     );
   }

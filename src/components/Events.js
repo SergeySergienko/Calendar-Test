@@ -3,6 +3,8 @@ import Event from "./Event";
 
 const SHORTEN_WIDTH = 100;
 const FULL_WIDTH = 200;
+const JSON_HEADER =
+  "// `start` & `duration` are measured in minutes\n// `start: 0` is 8:00a\n";
 
 const dummyEvents = [
   {
@@ -40,22 +42,54 @@ export default class Events extends Component {
 
   deleteEventHandler = (event, index) => {
     // --- parallel events check out ---
+
     const newEvents = this.state.events;
-    let shortenedElement = newEvents.find(
-      el =>
+    // let shortenedElement = newEvents.find(
+    //   el =>
+    //     event.start >= el.start &&
+    //     event.start <= el.start + el.duration &&
+    //     event.title !== el.title
+    // );
+    // let shortenedElement_2 = newEvents.find(
+    //   el =>
+    //     event.start + event.duration >= el.start &&
+    //     event.start + event.duration <= el.start + el.duration &&
+    //     event.title !== el.title
+    // );
+
+    // console.log("ShortenedElement: ", shortenedElement);
+    // console.log("ShortenedElement_2: ", shortenedElement_2);
+
+    // if (shortenedElement) {
+    //   shortenedElement.shift = 0;
+    //   shortenedElement.visualWidth = FULL_WIDTH;
+    // }
+    // if (shortenedElement_2) {
+    //   shortenedElement_2.shift = 0;
+    //   shortenedElement_2.visualWidth = FULL_WIDTH;
+    // }
+    // ----------------------------------
+    const arr = newEvents.map(el => {
+      return (el =
         (event.start >= el.start &&
           event.start <= el.start + el.duration &&
           event.title !== el.title) ||
         (el.start >= event.start &&
           el.start <= event.start + event.duration &&
           event.title !== el.title)
-    );
-    console.log("ShortenedElement: ", shortenedElement);
-    if (shortenedElement) {
-      shortenedElement.shift = 0;
-      shortenedElement.visualWidth = FULL_WIDTH;
-    }
-    // ----------------------------------
+          ? el
+          : null);
+    });
+    console.log(arr);
+    arr.forEach(el => {
+      if (el) {
+        el.shift = 0;
+        el.visualWidth = FULL_WIDTH;
+      }
+    });
+
+    //  const shift = arr.includes(SHORTEN_WIDTH) ? SHORTEN_WIDTH : 0;
+    //  const visualWidth = arr.includes(SHORTEN_WIDTH) ? SHORTEN_WIDTH : FULL_WIDTH;
 
     this.setState({
       events: this.state.events.filter((elem, i) => i !== index)
@@ -67,18 +101,50 @@ export default class Events extends Component {
     const { start, duration, title } = this.state.currentInput;
 
     // --- overlapped events check out ---
-    let overlappedElement = newEvents.find(
-      el =>
+
+    // let overlappedElement = newEvents.find(
+    //   el => start >= el.start && start <= el.start + el.duration
+    // );
+    // console.log("OverlappedElement: ", overlappedElement);
+    // if (overlappedElement) {
+    //   overlappedElement.visualWidth = SHORTEN_WIDTH;
+    // }
+
+    // let overlappedElement_2 = newEvents.find(
+    //   el =>
+    //     start + duration >= el.start &&
+    //     start + duration <= el.start + el.duration
+    // );
+    // console.log("OverlappedElement_2: ", overlappedElement_2);
+    // if (overlappedElement_2) {
+    //   overlappedElement_2.visualWidth = SHORTEN_WIDTH;
+    // }
+
+    // let shift =
+    //   (overlappedElement && overlappedElement.shift !== 100) ||
+    //   (overlappedElement_2 && overlappedElement_2.shift !== 100)
+    //     ? 100
+    //     : 0;
+    // let visualWidth =
+    //   overlappedElement || overlappedElement_2 ? SHORTEN_WIDTH : FULL_WIDTH;
+
+    // ----------------------------------
+
+    const arr = newEvents.map(el => {
+      return (el.visualWidth =
         (start >= el.start && start <= el.start + el.duration) ||
         (el.start >= start && el.start <= start + duration)
-    );
-    console.log("OverlappedElement: ", overlappedElement);
-    let shift = overlappedElement && overlappedElement.shift !== 100 ? 100 : 0;
-    let visualWidth = overlappedElement ? SHORTEN_WIDTH : FULL_WIDTH;
-    if (overlappedElement) {
-      overlappedElement.visualWidth = SHORTEN_WIDTH;
-    }
-    // ----------------------------------
+          ? SHORTEN_WIDTH
+          : FULL_WIDTH);
+    });
+    console.log(arr);
+
+    const shift = arr.includes(SHORTEN_WIDTH) ? SHORTEN_WIDTH : 0;
+    const visualWidth = arr.includes(SHORTEN_WIDTH)
+      ? SHORTEN_WIDTH
+      : FULL_WIDTH;
+
+    // _______________________________________
 
     newEvents.push({
       start,
@@ -125,6 +191,16 @@ export default class Events extends Component {
     });
   };
 
+  toJSON = () => {
+    let json = JSON.stringify(this.state.events, [
+      "start",
+      "duration",
+      "title"
+    ]);
+    console.log(JSON_HEADER + "\n" + json);
+    alert(JSON_HEADER + "\n" + json);
+  };
+
   render() {
     const eventList = this.state.events.map((event, index) => (
       <Fragment key={index}>
@@ -147,6 +223,7 @@ export default class Events extends Component {
               type="text"
               value={this.state.currentInput.title}
               onChange={this.inputTitleHandler}
+              required
             />
           </div>
           <div>
@@ -156,6 +233,7 @@ export default class Events extends Component {
               type="number"
               value={this.state.currentInput.start}
               onChange={this.inputStartHandler}
+              required
             />
           </div>
           <div>
@@ -165,11 +243,13 @@ export default class Events extends Component {
               type="number"
               value={this.state.currentInput.duration}
               onChange={this.inputDurationHandler}
+              required
             />
           </div>
           <br />
           <button onClick={this.reset}>Reset</button>
           <button onClick={this.addEventHandler}>Submit</button>
+          <button onClick={this.toJSON}>JSON</button>
         </div>
       </Fragment>
     );
