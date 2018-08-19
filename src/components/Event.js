@@ -20,6 +20,7 @@ export default class Event extends Component {
         fontFamily: "Open Sans",
         fontSize: "14px",
         overflow: "hidden",
+        whiteSpace: "nowrap",
         textOverflow: "ellipsis"
       }
     };
@@ -27,7 +28,7 @@ export default class Event extends Component {
     return (
       <Fragment>
         <div style={styles.event} onClick={() => onDelete(event, index)}>
-          {event.title.value} {event.start} - {event.duration}
+          {event.title.value}
         </div>
       </Fragment>
     );

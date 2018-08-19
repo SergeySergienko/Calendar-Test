@@ -12,7 +12,7 @@ const dummyEvents = [
     start: 0,
     duration: 20,
     title: {
-      value: "Exercise"
+      value: "Exercise Home Exercises"
     },
     visualWidth: FULL_WIDTH,
     shift: 0
@@ -30,7 +30,7 @@ const dummyEvents = [
     start: 120,
     duration: 50,
     title: {
-      value: "Plan the Working Day"
+      value: "Plan the Working Day and Thinking About Future"
     },
     visualWidth: FULL_WIDTH,
     shift: 0
@@ -107,7 +107,6 @@ export default class Events extends Component {
   addEventHandler = () => {
     const newEvents = this.state.events;
     const { start, duration, title } = this.state.currentInput;
-
     // --- overlapped events check out ---
 
     // let overlappedElement = newEvents.find(
@@ -155,16 +154,18 @@ export default class Events extends Component {
 
     const shift = arr.length > 0 ? SHORTEN_WIDTH : 0;
     const visualWidth = arr.length > 0 ? SHORTEN_WIDTH : FULL_WIDTH;
+    const titleObj = {value: title.value, isValid: title.isValid};
 
     // _______________________________________
 
     newEvents.push({
       start,
       duration,
-      title,
+      title: titleObj,
       visualWidth,
       shift
     });
+
     this.setState({
       events: newEvents
     });
