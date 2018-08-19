@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from "react";
 import Event from "./Event";
+import EventInput from "./EventInput";
 
 const SHORTEN_WIDTH = 100;
 const FULL_WIDTH = 200;
@@ -10,21 +11,27 @@ const dummyEvents = [
   {
     start: 0,
     duration: 20,
-    title: "Exercise",
+    title: {
+      value: "Exercise"
+    },
     visualWidth: FULL_WIDTH,
     shift: 0
   },
   {
     start: 25,
     duration: 30,
-    title: "Travel to Work",
+    title: {
+      value: "Travel to Work"
+    },
     visualWidth: FULL_WIDTH,
     shift: 0
   },
   {
     start: 120,
     duration: 50,
-    title: "Plan the Day",
+    title: {
+      value: "Plan the Working Day"
+    },
     visualWidth: FULL_WIDTH,
     shift: 0
   }
@@ -36,7 +43,10 @@ export default class Events extends Component {
     currentInput: {
       start: "",
       duration: "",
-      title: ""
+      title: {
+        value: "",
+        isValid: false
+      }
     }
   };
 
@@ -69,30 +79,28 @@ export default class Events extends Component {
     //   shortenedElement_2.visualWidth = FULL_WIDTH;
     // }
     // ----------------------------------
-    const arr = newEvents.map(el => {
-      return (el =
+    const arr = newEvents.filter(el => {
+      return (
         (event.start >= el.start &&
           event.start <= el.start + el.duration &&
           event.title !== el.title) ||
         (el.start >= event.start &&
           el.start <= event.start + event.duration &&
           event.title !== el.title)
-          ? el
-          : null);
+          ) && el;
     });
-    console.log(arr);
+
+    this.setState({
+      events: this.state.events.filter((elem, i) => i !== index)
+    });
+
+    // console.log(arr);
+
     arr.forEach(el => {
       if (el) {
         el.shift = 0;
         el.visualWidth = FULL_WIDTH;
       }
-    });
-
-    //  const shift = arr.includes(SHORTEN_WIDTH) ? SHORTEN_WIDTH : 0;
-    //  const visualWidth = arr.includes(SHORTEN_WIDTH) ? SHORTEN_WIDTH : FULL_WIDTH;
-
-    this.setState({
-      events: this.state.events.filter((elem, i) => i !== index)
     });
   };
 
@@ -130,19 +138,23 @@ export default class Events extends Component {
 
     // ----------------------------------
 
-    const arr = newEvents.map(el => {
-      return (el.visualWidth =
-        (start >= el.start && start <= el.start + el.duration) ||
+    const arr = newEvents.filter(el => {
+      return (
+        (start>= el.start && start <= el.start + el.duration) ||
         (el.start >= start && el.start <= start + duration)
-          ? SHORTEN_WIDTH
-          : FULL_WIDTH);
+          ) && el;
     });
     console.log(arr);
 
-    const shift = arr.includes(SHORTEN_WIDTH) ? SHORTEN_WIDTH : 0;
-    const visualWidth = arr.includes(SHORTEN_WIDTH)
-      ? SHORTEN_WIDTH
-      : FULL_WIDTH;
+    arr.forEach(el => {
+      if (el) {
+        // el.shift = 0;
+        el.visualWidth = SHORTEN_WIDTH;
+      }
+    });
+
+    const shift = arr.length > 0 ? SHORTEN_WIDTH : 0;
+    const visualWidth = arr.length > 0 ? SHORTEN_WIDTH : FULL_WIDTH;
 
     // _______________________________________
 
@@ -163,40 +175,19 @@ export default class Events extends Component {
     const newCurrentInput = this.state.currentInput;
     newCurrentInput.start = "";
     newCurrentInput.duration = "";
-    newCurrentInput.title = "";
+    newCurrentInput.title.value = "";
+    newCurrentInput.title.isValid = false;
     this.setState({
       currentInput: newCurrentInput
     });
   };
 
-  inputTitleHandler = e => {
-    const newInput = this.state.currentInput;
-    newInput.title = e.target.value;
-    this.setState({
-      currentInput: newInput
-    });
-  };
-  inputStartHandler = e => {
-    const newInput = this.state.currentInput;
-    newInput.start = parseInt(e.target.value, 10);
-    this.setState({
-      currentInput: newInput
-    });
-  };
-  inputDurationHandler = e => {
-    const newInput = this.state.currentInput;
-    newInput.duration = parseInt(e.target.value, 10);
-    this.setState({
-      currentInput: newInput
-    });
-  };
-
   toJSON = () => {
-    let json = JSON.stringify(this.state.events, [
-      "start",
-      "duration",
-      "title"
-    ]);
+    let json = JSON.stringify(this.state.events, (key,value)=> {
+      if (key === 'shift' || key === 'visualWidth') return undefined;
+      if (key === 'title') return value.value;
+      return value;
+    },1);
     console.log(JSON_HEADER + "\n" + json);
     alert(JSON_HEADER + "\n" + json);
   };
@@ -209,49 +200,27 @@ export default class Events extends Component {
     ));
     return (
       <Fragment>
-        <h2>Event List</h2>
-
-        <div className="container" style={{ position: "relative" }}>
+        <div className="container" style={styles.container}>
           {eventList}
         </div>
-
-        <div style={{ position: "absolute", top: "400px" }}>
-          <div>
-            <label>Title</label>
-            <br />
-            <input
-              type="text"
-              value={this.state.currentInput.title}
-              onChange={this.inputTitleHandler}
-              required
-            />
-          </div>
-          <div>
-            <label>Start</label>
-            <br />
-            <input
-              type="number"
-              value={this.state.currentInput.start}
-              onChange={this.inputStartHandler}
-              required
-            />
-          </div>
-          <div>
-            <label>Duration</label>
-            <br />
-            <input
-              type="number"
-              value={this.state.currentInput.duration}
-              onChange={this.inputDurationHandler}
-              required
-            />
-          </div>
-          <br />
-          <button onClick={this.reset}>Reset</button>
-          <button onClick={this.addEventHandler}>Submit</button>
-          <button onClick={this.toJSON}>JSON</button>
-        </div>
+        <button onClick={this.toJSON}>JSON</button>
+        <EventInput currentInput={this.state.currentInput}
+                    onAddEvent={this.addEventHandler}
+                    onReset={this.reset}
+                    />
       </Fragment>
     );
+  }
+}
+
+const styles = {
+  container: { 
+    position: "relative",
+    left: "45px",
+    display: "flex",
+    flexDirection: "column",
+    flexWrap: "wrap",
+    alignContent: "space-between",
+    height: "300px"
   }
 }
