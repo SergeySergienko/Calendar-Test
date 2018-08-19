@@ -4,6 +4,12 @@ export default class Event extends Component {
   render() {
     const { event, index, onDelete } = this.props;
 
+    let top = event.start;
+    let left = event.shift;
+    if(event.start >= 300) {
+      top = event.start - 300;
+      left = event.shift + 270;
+    }
     const styles = {
       event: {
         position: "absolute",
@@ -13,13 +19,14 @@ export default class Event extends Component {
         borderLeftStyle: "solid",
         width: `${event.visualWidth}px`,
         height: `${event.duration}px`,
-        top: `${event.start}px`,
-        left: `${event.shift}px`,
+        top: `${top}px`,
+        left: `${left}px`,
         padding: "4px",
         boxSizing: "border-box",
         fontFamily: "Open Sans",
         fontSize: "14px",
         overflow: "hidden",
+        whiteSpace: "nowrap",
         textOverflow: "ellipsis"
       }
     };
@@ -27,7 +34,7 @@ export default class Event extends Component {
     return (
       <Fragment>
         <div style={styles.event} onClick={() => onDelete(event, index)}>
-          {event.title.value} {event.start} - {event.duration}
+          {event.title.value}
         </div>
       </Fragment>
     );

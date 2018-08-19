@@ -14,7 +14,6 @@ export default class EventInput extends Component {
     const newInput = this.props.currentInput;
     newInput.start = parseInt(e.target.value, 10);
 
-    // let isValid = newInput.start
     this.setState({
       currentInput: newInput
     });
