@@ -18,8 +18,8 @@ const dummyEvents = [
     shift: 0
   },
   {
-    start: 25,
-    duration: 30,
+    start: 125,
+    duration: 70,
     title: {
       value: "Travel to Work"
     },
@@ -27,7 +27,7 @@ const dummyEvents = [
     shift: 0
   },
   {
-    start: 120,
+    start: 330,
     duration: 50,
     title: {
       value: "Plan the Working Day and Thinking About Future"
@@ -218,10 +218,10 @@ const styles = {
   container: { 
     position: "relative",
     left: "45px",
-    display: "flex",
-    flexDirection: "column",
-    flexWrap: "wrap",
-    alignContent: "space-between",
-    height: "300px"
+    // display: "flex",
+    // flexDirection: "column",
+    // flexWrap: "wrap",
+    // alignContent: "space-between",
+    height: "330px"
   }
 }
