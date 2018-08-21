@@ -51,43 +51,20 @@ export default class Events extends Component {
   };
 
   deleteEventHandler = (event, index) => {
+    const newEvents = this.state.events;
+
     // --- parallel events check out ---
 
-    const newEvents = this.state.events;
-    // let shortenedElement = newEvents.find(
-    //   el =>
-    //     event.start >= el.start &&
-    //     event.start <= el.start + el.duration &&
-    //     event.title !== el.title
-    // );
-    // let shortenedElement_2 = newEvents.find(
-    //   el =>
-    //     event.start + event.duration >= el.start &&
-    //     event.start + event.duration <= el.start + el.duration &&
-    //     event.title !== el.title
-    // );
-
-    // console.log("ShortenedElement: ", shortenedElement);
-    // console.log("ShortenedElement_2: ", shortenedElement_2);
-
-    // if (shortenedElement) {
-    //   shortenedElement.shift = 0;
-    //   shortenedElement.visualWidth = FULL_WIDTH;
-    // }
-    // if (shortenedElement_2) {
-    //   shortenedElement_2.shift = 0;
-    //   shortenedElement_2.visualWidth = FULL_WIDTH;
-    // }
-    // ----------------------------------
     const arr = newEvents.filter(el => {
       return (
-        (event.start >= el.start &&
+        ((event.start >= el.start &&
           event.start <= el.start + el.duration &&
           event.title !== el.title) ||
-        (el.start >= event.start &&
-          el.start <= event.start + event.duration &&
-          event.title !== el.title)
-          ) && el;
+          (el.start >= event.start &&
+            el.start <= event.start + event.duration &&
+            event.title !== el.title)) &&
+        el
+      );
     });
 
     this.setState({
@@ -95,55 +72,47 @@ export default class Events extends Component {
     });
 
     // console.log(arr);
+    
+    // dummy check out for overlapped events
+    if (arr.length > 0) {
+      const arr2 = newEvents.filter(el => {
+        return (
+          ((arr[0].start >= el.start &&
+            arr[0].start <= el.start + el.duration &&
+            arr[0].title !== el.title &&
+            el.title !== event.title) ||
+            (el.start >= arr[0].start &&
+              el.start <= arr[0].start + arr[0].duration &&
+              arr[0].title !== el.title &&
+              el.title !== event.title)) &&
+          el
+        );
+      });
+      // console.log(arr2, event);
 
-    arr.forEach(el => {
-      if (el) {
-        el.shift = 0;
-        el.visualWidth = FULL_WIDTH;
-      }
-    });
+      arr.forEach(el => {
+        if (arr2.length === 0) {
+          el.shift = 0;
+          el.visualWidth = FULL_WIDTH;
+        }
+      });
+    }
   };
 
   addEventHandler = () => {
     const newEvents = this.state.events;
     const { start, duration, title } = this.state.currentInput;
+
     // --- overlapped events check out ---
-
-    // let overlappedElement = newEvents.find(
-    //   el => start >= el.start && start <= el.start + el.duration
-    // );
-    // console.log("OverlappedElement: ", overlappedElement);
-    // if (overlappedElement) {
-    //   overlappedElement.visualWidth = SHORTEN_WIDTH;
-    // }
-
-    // let overlappedElement_2 = newEvents.find(
-    //   el =>
-    //     start + duration >= el.start &&
-    //     start + duration <= el.start + el.duration
-    // );
-    // console.log("OverlappedElement_2: ", overlappedElement_2);
-    // if (overlappedElement_2) {
-    //   overlappedElement_2.visualWidth = SHORTEN_WIDTH;
-    // }
-
-    // let shift =
-    //   (overlappedElement && overlappedElement.shift !== 100) ||
-    //   (overlappedElement_2 && overlappedElement_2.shift !== 100)
-    //     ? 100
-    //     : 0;
-    // let visualWidth =
-    //   overlappedElement || overlappedElement_2 ? SHORTEN_WIDTH : FULL_WIDTH;
-
-    // ----------------------------------
 
     const arr = newEvents.filter(el => {
       return (
-        (start>= el.start && start <= el.start + el.duration) ||
-        (el.start >= start && el.start <= start + duration)
-          ) && el;
+        ((start >= el.start && start <= el.start + el.duration) ||
+          (el.start >= start && el.start <= start + duration)) &&
+        el
+      );
     });
-    console.log(arr);
+    // console.log(arr);
 
     arr.forEach(el => {
       if (el) {
@@ -154,9 +123,7 @@ export default class Events extends Component {
 
     const shift = arr.length > 0 ? SHORTEN_WIDTH : 0;
     const visualWidth = arr.length > 0 ? SHORTEN_WIDTH : FULL_WIDTH;
-    const titleObj = {value: title.value, isValid: title.isValid};
-
-    // _______________________________________
+    const titleObj = { value: title.value, isValid: title.isValid };
 
     newEvents.push({
       start,
@@ -184,11 +151,15 @@ export default class Events extends Component {
   };
 
   toJSON = () => {
-    let json = JSON.stringify(this.state.events, (key,value)=> {
-      if (key === 'shift' || key === 'visualWidth') return undefined;
-      if (key === 'title') return value.value;
-      return value;
-    },1);
+    let json = JSON.stringify(
+      this.state.events,
+      (key, value) => {
+        if (key === "shift" || key === "visualWidth") return undefined;
+        if (key === "title") return value.value;
+        return value;
+      },
+      1
+    );
     console.log(JSON_HEADER + "\n" + json);
     alert(JSON_HEADER + "\n" + json);
   };
@@ -205,17 +176,18 @@ export default class Events extends Component {
           {eventList}
         </div>
         <button onClick={this.toJSON}>JSON</button>
-        <EventInput currentInput={this.state.currentInput}
-                    onAddEvent={this.addEventHandler}
-                    onReset={this.reset}
-                    />
+        <EventInput
+          currentInput={this.state.currentInput}
+          onAddEvent={this.addEventHandler}
+          onReset={this.reset}
+        />
       </Fragment>
     );
   }
 }
 
 const styles = {
-  container: { 
+  container: {
     position: "relative",
     left: "45px",
     // display: "flex",
@@ -224,4 +196,4 @@ const styles = {
     // alignContent: "space-between",
     height: "330px"
   }
-}
+};
